@@ -56,9 +56,7 @@ class Calibrator:
         top    = np.linalg.norm(ordered[1] - ordered[0])
         bottom = np.linalg.norm(ordered[2] - ordered[3])
         long_px = (top + bottom) / 2
-        px_per_cm = float(long_px / self.CARD_LONG_CM)
-        if self._cached_px_per_cm is None or px_per_cm > self._cached_px_per_cm:
-            self._cached_px_per_cm = px_per_cm
+        self._cached_px_per_cm = float(long_px / self.CARD_LONG_CM)
         return self._cached_px_per_cm
 
     @property

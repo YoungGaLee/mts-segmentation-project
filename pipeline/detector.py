@@ -4,6 +4,7 @@ import torch
 from ultralytics import YOLO
 
 BOWL_CLASS_ID = 45
+POT_CLASS_ID = 0
 
 
 def _get_device() -> str:
@@ -15,47 +16,57 @@ def _get_device() -> str:
 
 
 class Detector:
-    def __init__(self, model_path: str = "models/yolov8n-seg.pt", conf_threshold: float = 0.3):
-        self.model = YOLO(model_path)
+    def __init__(
+        self,
+        bowl_model_path: str = "models/yolov8n-seg.pt",
+        pot_model_path: str = "runs/segment/runs/pot-finetune/weights/best.pt",
+        conf_threshold: float = 0.3,
+    ):
         self.device = _get_device()
-        self.model.to(self.device)
+        self.bowl_model = YOLO(bowl_model_path)
+        self.bowl_model.to(self.device)
+        self.pot_model = YOLO(pot_model_path)
+        self.pot_model.to(self.device)
         self.conf_threshold = conf_threshold
 
-    def detect(self, image: np.ndarray) -> tuple[np.ndarray, str, float] | list:
-
-        results = self.model(image, verbose=False)[0]
-
+    def _best_detection(self, results, target_class_id: int) -> tuple | None:
         if results.masks is None:
-            return []
-
-        best_mask = None
-        best_area = 0
-        best_class = None
-        best_conf = 0.0
-
+            return None
+        best = None
         for i, cls_id in enumerate(results.boxes.cls):
-            if int(cls_id) != BOWL_CLASS_ID:
+            if int(cls_id) != target_class_id:
                 continue
-
             score = float(results.boxes.conf[i])
             if score < self.conf_threshold:
                 continue
+            if best is None or score > best[2]:
+                best = (i, results, score)
+        if best is None:
+            return None
+        i, res, score = best
+        raw_mask = res.masks.data[i].cpu().numpy()
+        return raw_mask, res.names[int(res.boxes.cls[i])], score
 
-            raw_mask = results.masks.data[i].cpu().numpy()
-            mask = cv2.resize(
-                raw_mask,
-                (image.shape[1], image.shape[0]),
-                interpolation=cv2.INTER_NEAREST,
-            ).astype(np.uint8)
+    def detect(self, image: np.ndarray) -> tuple[np.ndarray, str, float] | list:
+        bowl_res = self.bowl_model(image, verbose=False)[0]
+        pot_res = self.pot_model(image, verbose=False)[0]
 
-            area = int(mask.sum())
-            if area > best_area:
-                best_area = area
-                best_mask = mask
-                best_class = results.names[int(cls_id)]
-                best_conf = score
+        bowl = self._best_detection(bowl_res, BOWL_CLASS_ID)
+        pot = self._best_detection(pot_res, POT_CLASS_ID)
 
-        if best_mask is None:
+        if bowl is None and pot is None:
             return []
 
-        return best_mask, best_class, best_conf
+        raw_mask, class_name, conf = (
+            pot if bowl is None else
+            bowl if pot is None else
+            (pot if pot[2] >= bowl[2] else bowl)
+        )
+
+        mask = cv2.resize(
+            raw_mask,
+            (image.shape[1], image.shape[0]),
+            interpolation=cv2.INTER_NEAREST,
+        ).astype(np.uint8)
+
+        return mask, class_name, conf
