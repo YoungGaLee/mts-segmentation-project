@@ -28,17 +28,23 @@ def _encode_image(image_bgr: np.ndarray) -> str:
     return base64.b64encode(buffer).decode("utf-8")
 
 
-def _build_response(image_bgr: np.ndarray, mask: np.ndarray, result: dict) -> dict:
+def _build_response(image_bgr: np.ndarray, mask: np.ndarray, class_name: str, conf: float) -> dict:
     px_per_cm = calibrator.calibrate(image_bgr)
-    vis = draw_result(image_bgr, mask, result)
+    result = analyzer.analyze(mask, image_bgr)
+    if not result:
+        return {"detected": True, "analyzed": False}
+
+    vis = draw_result(image_bgr, mask, result, calibrator.last_card_rect)
     response = {
         "detected": True,
         "analyzed": True,
+        "class_name": class_name,
+        "conf": round(conf * 100, 1),
         "view_type": result["view_type"],
         "major_px": result["major_px"],
         "minor_px": result["minor_px"],
         "ratio": result.get("ratio"),
-        "solidity": result.get("solidity"),
+        "fit_quality": result.get("fit_quality"),
         "status": result["status"],
         "image": _encode_image(vis),
     }
@@ -54,15 +60,12 @@ async def analyze_image(file: UploadFile = File(...)):
     nparr = np.frombuffer(contents, np.uint8)
     image_bgr = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
 
-    mask = detector.detect(image_bgr)
-    if not isinstance(mask, np.ndarray):
+    detected = detector.detect(image_bgr)
+    if not isinstance(detected, tuple):
         return {"detected": False}
 
-    result = analyzer.analyze(mask)
-    if not result:
-        return {"detected": True, "analyzed": False}
-
-    return _build_response(image_bgr, mask, result)
+    mask, class_name, conf = detected
+    return _build_response(image_bgr, mask, class_name, conf)
 
 
 @app.websocket("/ws/webcam")
@@ -78,17 +81,13 @@ async def webcam_ws(websocket: WebSocket):
             if image_bgr is None:
                 continue
 
-            mask = detector.detect(image_bgr)
-            if not isinstance(mask, np.ndarray):
+            detected = detector.detect(image_bgr)
+            if not isinstance(detected, tuple):
                 await websocket.send_json({"detected": False})
                 continue
 
-            result = analyzer.analyze(mask)
-            if not result:
-                await websocket.send_json({"detected": True, "analyzed": False})
-                continue
-
-            await websocket.send_json(_build_response(image_bgr, mask, result))
+            mask, class_name, conf = detected
+            await websocket.send_json(_build_response(image_bgr, mask, class_name, conf))
 
     except WebSocketDisconnect:
         pass

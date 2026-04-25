@@ -21,7 +21,7 @@ class Detector:
         self.model.to(self.device)
         self.conf_threshold = conf_threshold
 
-    def detect(self, image: np.ndarray) -> np.ndarray | list:
+    def detect(self, image: np.ndarray) -> tuple[np.ndarray, str, float] | list:
 
         results = self.model(image, verbose=False)[0]
 
@@ -30,6 +30,8 @@ class Detector:
 
         best_mask = None
         best_area = 0
+        best_class = None
+        best_conf = 0.0
 
         for i, cls_id in enumerate(results.boxes.cls):
             if int(cls_id) != BOWL_CLASS_ID:
@@ -50,8 +52,10 @@ class Detector:
             if area > best_area:
                 best_area = area
                 best_mask = mask
+                best_class = results.names[int(cls_id)]
+                best_conf = score
 
         if best_mask is None:
             return []
 
-        return best_mask #가장 큰 객체만 인식
+        return best_mask, best_class, best_conf

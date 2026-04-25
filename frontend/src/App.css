@@ -159,14 +159,6 @@ h1 {
   font-weight: 600;
 }
 
-.status-badge {
-  text-align: center;
-  padding: 0.6rem;
-  border-radius: 8px;
-  color: #fff;
-  font-weight: 600;
-  font-size: 1rem;
-}
 
 /* Webcam */
 .webcam-controls {
@@ -234,6 +226,32 @@ h1 {
   border-radius: 8px;
   padding: 0.75rem 1rem;
   margin-top: 1rem;
+}
+
+.limitation-note {
+  margin-top: 3rem;
+  padding: 1.25rem 1.5rem;
+  background: #f8fafc;
+  border-top: 3px solid #e2e8f0;
+  border-radius: 8px;
+  color: #475569;
+  font-size: 0.875rem;
+  line-height: 1.7;
+}
+
+.limitation-note h4 {
+  margin: 0 0 0.75rem 0;
+  font-size: 0.95rem;
+  color: #1e293b;
+  font-weight: 600;
+}
+
+.limitation-note p {
+  margin: 0 0 0.5rem 0;
+}
+
+.limitation-note p:last-child {
+  margin-bottom: 0;
 }
 
 .info-msg {
