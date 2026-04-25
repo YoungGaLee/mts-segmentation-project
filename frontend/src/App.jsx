@@ -25,12 +25,19 @@ function ResultPanel({ result }) {
         </div>
         <div className="metric">
           <span className="label">장축</span>
-          <span className="value">{result.major_px?.toFixed(1)} px</span>
+          <span className="value">
+            {result.major_cm != null ? `${result.major_cm} cm` : `${result.major_px?.toFixed(1)} px`}
+          </span>
         </div>
         <div className="metric">
           <span className="label">단축</span>
-          <span className="value">{result.minor_px?.toFixed(1)} px</span>
+          <span className="value">
+            {result.minor_cm != null ? `${result.minor_cm} cm` : `${result.minor_px?.toFixed(1)} px`}
+          </span>
         </div>
+        {result.major_cm == null && (
+          <div className="info-msg">💳 카드를 주변에 두면 지름의 길이(cm)를 알 수 있습니다</div>
+        )}
         <div className="metric">
           <span className="label">{result.view_type === '정면' ? '단축/장축 비율' : 'Solidity'}</span>
           <span className="value">
