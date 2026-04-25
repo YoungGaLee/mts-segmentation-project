@@ -6,6 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from pipeline.detector import Detector
 from pipeline.analyzer import Analyzer
+from pipeline.calibration import Calibrator
 from utils.visualizer import draw_result
 
 app = FastAPI()
@@ -19,6 +20,7 @@ app.add_middleware(
 
 detector = Detector()
 analyzer = Analyzer()
+calibrator = Calibrator()
 
 
 def _encode_image(image_bgr: np.ndarray) -> str:
@@ -27,8 +29,9 @@ def _encode_image(image_bgr: np.ndarray) -> str:
 
 
 def _build_response(image_bgr: np.ndarray, mask: np.ndarray, result: dict) -> dict:
+    px_per_cm = calibrator.calibrate(image_bgr)
     vis = draw_result(image_bgr, mask, result)
-    return {
+    response = {
         "detected": True,
         "analyzed": True,
         "view_type": result["view_type"],
@@ -39,6 +42,10 @@ def _build_response(image_bgr: np.ndarray, mask: np.ndarray, result: dict) -> di
         "status": result["status"],
         "image": _encode_image(vis),
     }
+    if px_per_cm:
+        response["major_cm"] = calibrator.px_to_cm(result["major_px"], px_per_cm)
+        response["minor_cm"] = calibrator.px_to_cm(result["minor_px"], px_per_cm)
+    return response
 
 
 @app.post("/analyze")
