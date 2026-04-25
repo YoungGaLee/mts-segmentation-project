@@ -1,0 +1,13 @@
+train: /Users/younggalee/Desktop/project/mts-segmentation-project/dataset/train/images
+val: /Users/younggalee/Desktop/project/mts-segmentation-project/dataset/valid/images
+test: /Users/younggalee/Desktop/project/mts-segmentation-project/dataset/test/images
+
+nc: 1
+names: ['bowl']
+
+roboflow:
+  workspace: -r2un0
+  project: my-first-project-anqjt
+  version: 2
+  license: CC BY 4.0
+  url: https://universe.roboflow.com/-r2un0/my-first-project-anqjt/dataset/2
