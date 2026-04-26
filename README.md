@@ -13,8 +13,7 @@
 
 ### 시연 영상
 
-<!-- 시연 영상 URL을 여기에 삽입해주세요 -->
-> 준비 중
+[![Demo](https://img.youtube.com/vi/y45FGJO3G0c/0.jpg)](https://youtube.com/watch?v=y45FGJO3G0c)
 
 </br>
 
