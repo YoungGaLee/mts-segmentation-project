@@ -18,9 +18,16 @@
 </br>
 
 ### 결과 예시
+<img width="848" height="421" alt="image" src="https://github.com/user-attachments/assets/a8b8dfbe-3401-468b-844b-bd3044b7b7ce" />
 
-<!-- 결과 사진을 여기에 삽입해주세요 (예: ![result](assets/result.jpg)) -->
-> 준비 중
+<br>
+
+<img width="60%" alt="image" src="https://github.com/user-attachments/assets/ceac184e-60a5-4431-884f-6c00c537d2f3" />
+
+<br>
+
+찌그러지지 않은 원형 냄비에 대해서는 판별을 잘 하나, 찌그러진 냄비에 대해서는 찌그러진 상태를 판별하지 못한 모습을 보임.   
+fit_quality 값을 조절하면 조금 더 정확히 판별 가능할 것으로 예상함.
 
 </br>
 
