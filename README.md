@@ -20,7 +20,8 @@
 ## 결과 화면
 ### 성공
 #### [ 실시간 웹캠 ]
-<img width="1218" height="1772" alt="image" src="https://github.com/user-attachments/assets/cc0c58cc-8c63-4776-9ebe-1203ef9f41fb" />
+<img width="1220" height="1606" alt="image" src="https://github.com/user-attachments/assets/93df57f6-9248-4838-96ef-f07892e8eef4" />
+
 
 <br>
 
@@ -28,6 +29,7 @@
 
 <img width="1182" height="2704" alt="image" src="https://github.com/user-attachments/assets/e4bae89a-dcae-45ec-964b-0118fa2f95de" />
 
+기준 물체(카드)가 없을 때는 정확한 크기를 측정할 수 없습니다.
 <br>
 
 <br>
